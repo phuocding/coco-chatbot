@@ -156,6 +156,9 @@ async function handlePostback(sender_psid, received_postback) {
     case "dinner":
       await chatbotService.handleSendDinner(sender_psid);
       break;
+    case "back_to_top":
+      await chatbotService.handleQuickRely(sender_psid);
+      break;
     default:
       response = {
         text: `Oops, hình như tớ chưa thể đáp ứng mong muốn ${payload}`,

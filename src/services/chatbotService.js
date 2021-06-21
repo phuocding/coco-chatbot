@@ -228,9 +228,22 @@ let getImageGetStarted = () => {
   return response;
 };
 
+let handleQuickRely = (sender_psid) => {
+  return new Promise(async (resovle, reject) => {
+    try {
+      let response1 = getQuickReply();
+      // call sendAPI
+      await callSendAPI(sender_psid, response1);
+      resovle("done");
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
 let getQuickReply = () => {
   let response = {
-    text: "Các chủ đề bạn có thể quan tâm",
+    text: "Chọn bữa ăn bạn muốn theo dõi",
     quick_replies: [
       {
         content_type: "text",
@@ -271,31 +284,64 @@ let handleSendBreakfast = (sender_psid) => {
 let getBreakfast = () => {
   let randomNum1 = Math.floor(Math.random() * (len1 - 1));
   let randomBreakfast = breakfastList[randomNum1];
+
+  //   let response = {
+  //     attachment: {
+  //       type: "template",
+  //       payload: {
+  //         template_type: "generic",
+  //         elements: [
+  //           {
+  //             title: randomBreakfast.name,
+  //             image_url: randomBreakfast.image,
+  //             subtitle: "Bạn muốn chọn món này hem?",
+  //             default_action: {
+  //               type: "web_url",
+  //               url: randomBreakfast.web_url,
+  //               webview_height_ratio: "tall",
+  //             },
+  //             buttons: [
+  //               {
+  //                 type: "web_url",
+  //                 url: randomBreakfast.web_url,
+  //                 title: "Xem công thức",
+  //               },
+  //               {
+  //                 type: "postback",
+  //                 title: "CHỌN LẠI",
+  //                 payload: "breakfast",
+  //               },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   };
+
   let response = {
     attachment: {
       type: "template",
       payload: {
-        template_type: "generic",
+        template_type: "media",
         elements: [
           {
-            title: randomBreakfast.name,
-            image_url: randomBreakfast.image,
-            subtitle: "Bạn muốn chọn món này hem?",
-            default_action: {
-              type: "web_url",
-              url: randomBreakfast.web_url,
-              webview_height_ratio: "tall",
-            },
+            media_type: "video",
+            url: randomBreakfast.video,
             buttons: [
               {
                 type: "web_url",
                 url: randomBreakfast.web_url,
-                title: "Xem công thức",
+                title: randomBreakfast.name,
               },
               {
                 type: "postback",
-                title: "CHỌN LẠI",
+                title: "Chọn thực đơn khác",
                 payload: "breakfast",
+              },
+              {
+                type: "postback",
+                title: "Chọn lại bữa ăn",
+                payload: "back_to_top",
               },
             ],
           },
@@ -322,31 +368,31 @@ let handleSendLucnch = (sender_psid) => {
 let getLunch = () => {
   let randomNum2 = Math.floor(Math.random() * (len2 - 1));
   let randomLunch = lunchList[randomNum2];
+
   let response = {
     attachment: {
       type: "template",
       payload: {
-        template_type: "generic",
+        template_type: "media",
         elements: [
           {
-            title: randomLunch.name,
-            image_url: randomLunch.image,
-            subtitle: "Bạn muốn chọn món này hem?",
-            default_action: {
-              type: "web_url",
-              url: randomLunch.web_url,
-              webview_height_ratio: "tall",
-            },
+            media_type: "video",
+            url: randomLunch.video,
             buttons: [
               {
                 type: "web_url",
                 url: randomLunch.web_url,
-                title: "Xem công thức",
+                title: randomLunch.name,
               },
               {
                 type: "postback",
-                title: "CHỌN LẠI",
+                title: "Chọn thực đơn khác",
                 payload: "lunch",
+              },
+              {
+                type: "postback",
+                title: "Chọn lại bữa ăn",
+                payload: "return",
               },
             ],
           },
@@ -373,31 +419,31 @@ let handleSendDinner = (sender_psid) => {
 let getDinner = () => {
   let randomNum3 = Math.floor(Math.random() * (len3 - 1));
   let randomDinner = dinnertList[randomNum3];
+
   let response = {
     attachment: {
       type: "template",
       payload: {
-        template_type: "generic",
+        template_type: "media",
         elements: [
           {
-            title: randomDinner.name,
-            image_url: randomDinner.image,
-            subtitle: "Bạn muốn chọn món này hem?",
-            default_action: {
-              type: "web_url",
-              url: randomDinner.web_url,
-              webview_height_ratio: "tall",
-            },
+            media_type: "video",
+            url: randomDinner.video,
             buttons: [
               {
                 type: "web_url",
                 url: randomDinner.web_url,
-                title: "Xem công thức",
+                title: randomDinner.name,
               },
               {
                 type: "postback",
-                title: "CHỌN LẠI",
+                title: "Chọn thực đơn khác",
                 payload: "dinner",
+              },
+              {
+                type: "postback",
+                title: "Chọn lại bữa ăn",
+                payload: "return",
               },
             ],
           },
@@ -413,4 +459,5 @@ module.exports = {
   handleSendBreakfast: handleSendBreakfast,
   handleSendLucnch: handleSendLucnch,
   handleSendDinner: handleSendDinner,
+  handleQuickRely: handleQuickRely,
 };
