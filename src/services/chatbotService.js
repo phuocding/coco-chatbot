@@ -392,7 +392,7 @@ let getLunch = () => {
               {
                 type: "postback",
                 title: "Chọn lại bữa ăn",
-                payload: "return",
+                payload: "back_to_top",
               },
             ],
           },
@@ -443,7 +443,7 @@ let getDinner = () => {
               {
                 type: "postback",
                 title: "Chọn lại bữa ăn",
-                payload: "return",
+                payload: "back_to_top",
               },
             ],
           },
