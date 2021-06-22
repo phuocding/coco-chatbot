@@ -62,69 +62,6 @@ let getWebhook = (req, res) => {
   }
 };
 
-// Handles messages events
-async function handleMessage(sender_psid, received_message) {
-  let response;
-
-  // Check if quikc reply
-  if (received_message.quick_reply && received_message.quick_reply.payload) {
-    if (received_message.quick_reply.payload === "breakfast") {
-      await chatbotService.handleSendBreakfast(sender_psid);
-    }
-    if (received_message.quick_reply.payload === "lunch") {
-      await chatbotService.handleSendLucnch(sender_psid);
-    }
-    if (received_message.quick_reply.payload === "dinner") {
-      await chatbotService.handleSendDinner(sender_psid);
-    }
-    return;
-  }
-
-  // Check if the message contains text
-  if (received_message.text) {
-    console.log("---------------------");
-    console.log(received_message.text);
-    console.log("---------------------");
-    // Create the payload for a basic text message
-    response = {
-      text: `Tớ đã nhận được thánh chỉ có nội dung "${received_message.text}". Bây giờ bạn hãy gửi cho tớ hình ảnh món ăn của bạn nhé.`,
-    };
-  } else if (received_message.attachments) {
-    // Get the URL of the message attachment
-    let attachment_url = received_message.attachments[0].payload.url;
-    response = {
-      attachment: {
-        type: "template",
-        payload: {
-          template_type: "generic",
-          elements: [
-            {
-              title: "Đây có phải món ăn bạn muốn giới thiệu?",
-              subtitle: "Bấm nút để trả lời.",
-              image_url: attachment_url,
-              buttons: [
-                {
-                  type: "postback",
-                  title: "Đúng vậy!",
-                  payload: "yes",
-                },
-                {
-                  type: "postback",
-                  title: "Không phải!",
-                  payload: "no",
-                },
-              ],
-            },
-          ],
-        },
-      },
-    };
-  }
-
-  // Sends the response message
-  callSendAPI(sender_psid, response);
-}
-
 // Handles messaging_postbacks events
 async function handlePostback(sender_psid, received_postback) {
   let response;
@@ -136,7 +73,7 @@ async function handlePostback(sender_psid, received_postback) {
   switch (payload) {
     case "yes":
       response = {
-        text: "Nhà Dừa đã lưu hình ảnh món ăn, cảm ơn bạn đã gợi ý.",
+        text: "Hình ảnh thú vị quá, cảm ơn bạn đã chia sẻ.",
       };
       await chatbotService.handleGetStarted(sender_psid);
       break;
@@ -150,11 +87,14 @@ async function handlePostback(sender_psid, received_postback) {
     case "breakfast":
       await chatbotService.handleSendBreakfast(sender_psid);
       break;
-    case "lunch":
-      await chatbotService.handleSendLucnch(sender_psid);
-      break;
-    case "dinner":
-      await chatbotService.handleSendDinner(sender_psid);
+    // case "lunch":
+    //   await chatbotService.handleSendLucnch(sender_psid);
+    //   break;
+    // case "dinner":
+    //   await chatbotService.handleSendDinner(sender_psid);
+    //   break;
+    case "drink":
+      await chatbotService.handleSendDrink(sender_psid);
       break;
     case "back_to_top":
       await chatbotService.handleQuickRely(sender_psid);
@@ -182,7 +122,7 @@ function callSendAPI(sender_psid, response) {
   // Send the HTTP request to the Messenger Platform
   request(
     {
-      uri: "https://graph.facebook.com/v2.6/me/messages",
+      uri: "https://graph.facebook.com/v11.0/me/messages",
       qs: { access_token: PAGE_ACCESS_TOKEN },
       method: "POST",
       json: request_body,
@@ -196,6 +136,189 @@ function callSendAPI(sender_psid, response) {
     }
   );
 }
+
+// Handles messages events
+async function handleMessage(sender_psid, received_message) {
+  let response;
+
+  if (
+    received_message &&
+    received_message.attachments &&
+    received_message.attachments[0].payload
+  ) {
+    callSendAPI(sender_psid, "Cảm ơn bạn đã ghé thăm");
+    callSendAPIWithTemplate(sender_psid);
+    return;
+  }
+
+  // check greeting is here and is confident
+  let entitiesArr = [
+    "welcome",
+    "saybye",
+    "apologise",
+    "thanks",
+    "feeling",
+    "people",
+    "congratulation",
+    "breakfast",
+    "lunch",
+    "dinner",
+    "date",
+    "drinks",
+    "food",
+    "question",
+    "requirement",
+    "sleep",
+    "suggestion",
+  ];
+  let entityChosen = "";
+
+  entitiesArr.forEach((name) => {
+    let entity = firstTrait(received_message.nlp, name);
+    if (entity && entity.confidence > 0.8) {
+      entityChosen = name;
+    }
+  });
+
+  if (entityChosen !== "") {
+    if (entityChosen === "feeling") {
+      //send greetings message
+      response = {
+        text: "Bạn có ổn không, hãy thử gọi sữa chua trân châu Hạ Long nhé",
+      };
+    }
+    if (entityChosen === "food") {
+      //send thanks message
+      response = { text: "Bạn có thể ăn mỳ vằn thắn nhé" };
+    }
+    if (entityChosen === "date") {
+      //send bye message
+      response = { text: "Hôm nay bạn muốn ăn đồ chay không?" };
+    }
+  } else {
+    // default
+    response = {
+      text: `Coco đang thông minh dần lên, bạn hãy thử lại nhé`,
+    };
+  }
+
+  // Check if quick reply
+  if (received_message.quick_reply && received_message.quick_reply.payload) {
+    if (received_message.quick_reply.payload === "breakfast") {
+      await chatbotService.handleSendBreakfast(sender_psid);
+    }
+    if (received_message.quick_reply.payload === "drink") {
+      await chatbotService.handleSendDrink(sender_psid);
+    }
+    // if (received_message.quick_reply.payload === "lunch") {
+    //   await chatbotService.handleSendLucnch(sender_psid);
+    // }
+    // if (received_message.quick_reply.payload === "dinner") {
+    //   await chatbotService.handleSendDinner(sender_psid);
+    // }
+    return;
+  }
+
+  // Check if the message contains text
+  // if (received_message.text) {
+  //   console.log("---------------------");
+  //   console.log(received_message.text);
+  //   console.log("---------------------");
+  //   // Create the payload for a basic text message
+  //   response = {
+  //     text: `Tớ đã nhận được thánh chỉ có nội dung "${received_message.text}".`,
+  //   };
+  //   await chatbotService.handleQuickRely(sender_psid);
+  // } else if (received_message.attachments) {
+  //   // Get the URL of the message attachment
+  //   let attachment_url = received_message.attachments[0].payload.url;
+  //   response = {
+  //     attachment: {
+  //       type: "template",
+  //       payload: {
+  //         template_type: "generic",
+  //         elements: [
+  //           {
+  //             title: "Đây có phải món ăn bạn muốn giới thiệu?",
+  //             subtitle: "Bấm nút để trả lời.",
+  //             image_url: attachment_url,
+  //             buttons: [
+  //               {
+  //                 type: "postback",
+  //                 title: "Đúng vậy!",
+  //                 payload: "yes",
+  //               },
+  //               {
+  //                 type: "postback",
+  //                 title: "Không phải!",
+  //                 payload: "no",
+  //               },
+  //             ],
+  //           },
+  //         ],
+  //       },
+  //     },
+  //   };
+  // }
+
+  // Sends the response message
+  callSendAPI(sender_psid, response);
+}
+
+// Handle NLP
+function firstTrait(nlp, name) {
+  return nlp && nlp.entities && nlp.entities[name] && nlp.entities[name][0];
+}
+
+let callSendAPIWithTemplate = (sender_psid) => {
+  // document fb message template
+  // https://developers.facebook.com/docs/messenger-platform/send-messages/templates
+  let body = {
+    recipient: {
+      id: sender_psid,
+    },
+    message: {
+      attachment: {
+        type: "template",
+        payload: {
+          template_type: "generic",
+          elements: [
+            {
+              title: "Bạn có muốn tham khảo một vài lựa chọn dưới đây?",
+              image_url:
+                "https://i.pinimg.com/originals/70/1c/4f/701c4f418e5d1bb0b278aea50296c568.gif",
+              subtitle:
+                "Nhấn Like và Follow Page để chờ đón những thông tin mới nhất",
+              buttons: [
+                {
+                  type: "web_url",
+                  url: "https://fb.com/coco23210",
+                  title: "Truy cập ngay",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    },
+  };
+
+  request(
+    {
+      uri: "https://graph.facebook.com/v11.0/me/messages",
+      qs: { access_token: PAGE_ACCESS_TOKEN },
+      method: "POST",
+      json: body,
+    },
+    (err, res, body) => {
+      if (!err) {
+        // console.log('message sent!')
+      } else {
+        console.error("Unable to send message:" + err);
+      }
+    }
+  );
+};
 
 let setupProfile = async (req, res) => {
   //call profile fb API

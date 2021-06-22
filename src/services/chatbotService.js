@@ -3,6 +3,7 @@ import request from "request";
 const breakfastList = require("./breakfast.json");
 const lunchList = require("./lunch.json");
 const dinnertList = require("./dinner.json");
+const drinkList = require("./drink.json");
 
 require("dotenv").config();
 
@@ -25,6 +26,9 @@ let len2 = lunchList.length;
 
 // random DINNER FOOD
 let len3 = dinnertList.length;
+
+// random DRINK FOOD
+let len4 = drinkList.length;
 
 let callSendAPI = async (sender_psid, response) => {
   return new Promise(async (resovle, reject) => {
@@ -143,7 +147,7 @@ let handleGetStarted = (sender_psid) => {
     try {
       let username = await getUsername(sender_psid);
       let response1 = {
-        text: `Chào mừng bạn ${username} đến với THỰC ĐƠN VUI VẺ của NHÀ DỪA!`,
+        text: `Chào mừng bạn ${username} đến với THỰC ĐƠN VUI VẺ của NHÀ DỪA. Mình là Coco rất vui vì bạn đã ghé thăm.`,
       };
 
       // UI 1
@@ -163,58 +167,58 @@ let handleGetStarted = (sender_psid) => {
   });
 };
 
-let getStartedTemplate = () => {
-  let response = {
-    attachment: {
-      type: "template",
-      payload: {
-        template_type: "generic",
-        elements: [
-          {
-            title: "BỮA SÁNG",
-            subtitle:
-              "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
-            image_url: IMAGE_BREAKFAST,
-            buttons: [
-              {
-                type: "postback",
-                title: "CHỌN NGẪU NHIÊN!",
-                payload: "breakfast",
-              },
-            ],
-          },
-          {
-            title: "BỮA TRƯA",
-            subtitle:
-              "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
-            image_url: IMAGE_LUNCH,
-            buttons: [
-              {
-                type: "postback",
-                title: "CHỌN NGẪU NHIÊN!",
-                payload: "lunch",
-              },
-            ],
-          },
-          {
-            title: "BỮA TỐI",
-            subtitle:
-              "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
-            image_url: IMAGE_DINNER,
-            buttons: [
-              {
-                type: "postback",
-                title: "CHỌN NGẪU NHIÊN!",
-                payload: "dinner",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  };
-  return response;
-};
+// let getStartedTemplate = () => {
+//   let response = {
+//     attachment: {
+//       type: "template",
+//       payload: {
+//         template_type: "generic",
+//         elements: [
+//           {
+//             title: "BỮA SÁNG",
+//             subtitle:
+//               "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
+//             image_url: IMAGE_BREAKFAST,
+//             buttons: [
+//               {
+//                 type: "postback",
+//                 title: "CHỌN NGẪU NHIÊN!",
+//                 payload: "breakfast",
+//               },
+//             ],
+//           },
+//           {
+//             title: "BỮA TRƯA",
+//             subtitle:
+//               "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
+//             image_url: IMAGE_LUNCH,
+//             buttons: [
+//               {
+//                 type: "postback",
+//                 title: "CHỌN NGẪU NHIÊN!",
+//                 payload: "lunch",
+//               },
+//             ],
+//           },
+//           {
+//             title: "BỮA TỐI",
+//             subtitle:
+//               "Nếu bấm nút, bạn sẽ nhận được công thức một món ăn ngẫu nhiên từ hệ thống",
+//             image_url: IMAGE_DINNER,
+//             buttons: [
+//               {
+//                 type: "postback",
+//                 title: "CHỌN NGẪU NHIÊN!",
+//                 payload: "dinner",
+//               },
+//             ],
+//           },
+//         ],
+//       },
+//     },
+//   };
+//   return response;
+// };
 
 let getImageGetStarted = () => {
   let response = {
@@ -247,23 +251,80 @@ let getQuickReply = () => {
     quick_replies: [
       {
         content_type: "text",
-        title: "BỮA SÁNG",
+        title: "ĂN GÌ",
         payload: "breakfast",
         image_url: IMAGE_BREAKFAST,
       },
+      // {
+      //   content_type: "text",
+      //   title: "BỮA TRƯA",
+      //   payload: "lunch",
+      //   image_url: IMAGE_LUNCH,
+      // },
+      // {
+      //   content_type: "text",
+      //   title: "BỮA TỐI",
+      //   payload: "dinner",
+      //   image_url: IMAGE_DINNER,
+      // },
       {
         content_type: "text",
-        title: "BỮA TRƯA",
-        payload: "lunch",
-        image_url: IMAGE_LUNCH,
-      },
-      {
-        content_type: "text",
-        title: "BỮA TỐI",
-        payload: "dinner",
+        title: "UỐNG GÌ",
+        payload: "drink",
         image_url: IMAGE_DINNER,
       },
     ],
+  };
+  return response;
+};
+
+let handleSendDrink = (sender_psid) => {
+  return new Promise(async (resovle, reject) => {
+    try {
+      let response1 = getDrink();
+      // call sendAPI
+      await callSendAPI(sender_psid, response1);
+      resovle("done");
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+let getDrink = () => {
+  let randomNum4 = Math.floor(Math.random() * (len4 - 1));
+  let randomDrink = drinkList[randomNum4];
+
+  let response = {
+    attachment: {
+      type: "template",
+      payload: {
+        template_type: "media",
+        elements: [
+          {
+            media_type: "video",
+            url: randomDrink.video,
+            buttons: [
+              {
+                type: "web_url",
+                url: randomDrink.web_url,
+                title: randomDrink.name,
+              },
+              {
+                type: "postback",
+                title: "Chọn đồ uống khác",
+                payload: "drink",
+              },
+              {
+                type: "postback",
+                title: "Quay lại ban đầu",
+                payload: "back_to_top",
+              },
+            ],
+          },
+        ],
+      },
+    },
   };
   return response;
 };
@@ -284,39 +345,6 @@ let handleSendBreakfast = (sender_psid) => {
 let getBreakfast = () => {
   let randomNum1 = Math.floor(Math.random() * (len1 - 1));
   let randomBreakfast = breakfastList[randomNum1];
-
-  //   let response = {
-  //     attachment: {
-  //       type: "template",
-  //       payload: {
-  //         template_type: "generic",
-  //         elements: [
-  //           {
-  //             title: randomBreakfast.name,
-  //             image_url: randomBreakfast.image,
-  //             subtitle: "Bạn muốn chọn món này hem?",
-  //             default_action: {
-  //               type: "web_url",
-  //               url: randomBreakfast.web_url,
-  //               webview_height_ratio: "tall",
-  //             },
-  //             buttons: [
-  //               {
-  //                 type: "web_url",
-  //                 url: randomBreakfast.web_url,
-  //                 title: "Xem công thức",
-  //               },
-  //               {
-  //                 type: "postback",
-  //                 title: "CHỌN LẠI",
-  //                 payload: "breakfast",
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   };
 
   let response = {
     attachment: {
@@ -340,7 +368,7 @@ let getBreakfast = () => {
               },
               {
                 type: "postback",
-                title: "Chọn lại bữa ăn",
+                title: "Quay lại ban đầu",
                 payload: "back_to_top",
               },
             ],
@@ -392,7 +420,7 @@ let getLunch = () => {
               {
                 type: "postback",
                 title: "Chọn lại bữa ăn",
-                payload: "return",
+                payload: "back_to_top",
               },
             ],
           },
@@ -443,7 +471,7 @@ let getDinner = () => {
               {
                 type: "postback",
                 title: "Chọn lại bữa ăn",
-                payload: "return",
+                payload: "back_to_top",
               },
             ],
           },
@@ -460,4 +488,5 @@ module.exports = {
   handleSendLucnch: handleSendLucnch,
   handleSendDinner: handleSendDinner,
   handleQuickRely: handleQuickRely,
+  handleSendDrink: handleSendDrink,
 };
